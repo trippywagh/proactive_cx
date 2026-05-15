@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import IPhoneMock from './components/IPhoneMock'
 import Home from './screens/Home'
+import HomeWithStatusPill from './screens/HomeWithStatusPill'
 import Pending from './screens/Pending'
 import PendingV2 from './screens/PendingV2'
 import PendingDebited from './screens/PendingDebited'
@@ -11,6 +12,7 @@ import HelpAssistantFailed from './screens/HelpAssistantFailed'
 
 const SCREENS = [
   { id: 'home', label: 'Home', Component: Home },
+  { id: 'home-with-pill', label: 'Home (pending pill)', Component: HomeWithStatusPill },
   { id: 'pending', label: 'Pending', Component: Pending },
   { id: 'pending-v2', label: 'Pending v2', Component: PendingV2 },
   { id: 'pending-debited', label: 'Pending (debited)', Component: PendingDebited },
@@ -49,7 +51,7 @@ export default function App() {
 
       <div className="flex justify-center py-10 px-4">
         <IPhoneMock>
-          <ActiveScreen />
+          <ActiveScreen onNavigate={setActiveId} />
         </IPhoneMock>
       </div>
     </div>
