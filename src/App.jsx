@@ -2,11 +2,15 @@ import { useState } from 'react'
 import IPhoneMock from './components/IPhoneMock'
 import Home from './screens/Home'
 import Pending from './screens/Pending'
+import PendingV2 from './screens/PendingV2'
+import PendingDebited from './screens/PendingDebited'
 import Failed from './screens/Failed'
 
 const SCREENS = [
   { id: 'home', label: 'Home', Component: Home },
   { id: 'pending', label: 'Pending', Component: Pending },
+  { id: 'pending-v2', label: 'Pending v2', Component: PendingV2 },
+  { id: 'pending-debited', label: 'Pending (debited)', Component: PendingDebited },
   { id: 'pending-success', label: 'Pending → Success', Component: () => <Pending simulateOutcome="success" /> },
   { id: 'pending-failed', label: 'Pending → Failed', Component: () => <Pending simulateOutcome="failed" /> },
   { id: 'failed', label: 'Failed', Component: Failed },

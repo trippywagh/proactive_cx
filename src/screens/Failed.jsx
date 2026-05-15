@@ -1,5 +1,11 @@
 import { useState } from 'react'
-import { LanguageSelector, LanguageBottomSheet, UnsupportedLangHint } from '../components/LanguagePicker'
+import {
+  LanguageSelector,
+  LanguageBottomSheet,
+  UnsupportedLangHint,
+  useTtsDemo,
+  ListenOverlay,
+} from '../components/LanguagePicker'
 
 /* ───────────────────────── Copy ───────────────────────── */
 
@@ -8,7 +14,7 @@ const COPY = {
     badge: 'PAYMENT FAILED',
     headline: "Payment didn't go through",
     sub: 'to Truptesh Wagh',
-    refundLine: 'Refund initiated · ₹1,00,000 returning to your HDFC account',
+    refundLine: 'Refund initiated · ₹1,999 returning to your HDFC account',
 
     timelineLabel: 'REFUND TIMELINE',
     timeline: [
@@ -21,7 +27,7 @@ const COPY = {
     whyBadge: 'WHY THIS HAPPENED',
     whyHeadline: "Receiver's bank (Kotak) declined the transaction",
     whySub:
-      "This usually happens when the receiver's bank is temporarily overloaded or under maintenance. It's not your fault, and nothing is wrong with your account.",
+      "Rahul Ji, this usually happens when the receiver's bank is temporarily overloaded or under maintenance. It's not your fault, and nothing is wrong with your account.",
 
     refLabel: 'REFUND REFERENCE',
     refValue: 'NRZ250514091819AB',
@@ -29,10 +35,7 @@ const COPY = {
     refCopied: 'Copied',
 
     notifyTitle: 'Notify me on WhatsApp',
-    notifySub: 'When ₹1,00,000 is back · +91 98••• ••210',
-
-    calendarBtn: 'Add expected refund date to calendar',
-    calendarAdded: 'Added · 21 May',
+    notifySub: 'When ₹1,999 is back · +91 98••• ••210',
 
     txDetailsLabel: 'TRANSACTION DETAILS',
     txTime: '14 May 2026 · 1:19 PM',
@@ -40,14 +43,13 @@ const COPY = {
     viewDetails: 'View full details',
 
     ctaPrimary: 'Try sending again',
-    ctaSecondary: 'Talk to support',
     replay: 'Replay',
   },
   hi: {
     badge: 'पेमेंट फेल',
     headline: 'पेमेंट पूरा नहीं हो सका',
     sub: 'तृप्तेश वाघ को',
-    refundLine: 'रिफंड शुरू · ₹1,00,000 आपके HDFC अकाउंट में वापस आ रहे हैं',
+    refundLine: 'रिफंड शुरू · ₹1,999 आपके HDFC अकाउंट में वापस आ रहे हैं',
 
     timelineLabel: 'रिफंड का सफर',
     timeline: [
@@ -60,7 +62,7 @@ const COPY = {
     whyBadge: 'ऐसा क्यों हुआ',
     whyHeadline: 'पाने वाले के बैंक (कोटक) ने लेन-देन मना कर दिया',
     whySub:
-      'ऐसा तब होता है जब पाने वाले का बैंक कुछ देर के लिए धीमा या मेंटेनेंस में होता है। यह आपकी गलती नहीं है, और आपके अकाउंट में कोई दिक्कत नहीं है।',
+      'राहुल जी, ऐसा तब होता है जब पाने वाले का बैंक कुछ देर के लिए धीमा या मेंटेनेंस में होता है। यह आपकी गलती नहीं है, और आपके अकाउंट में कोई दिक्कत नहीं है।',
 
     refLabel: 'रिफंड रेफरेंस',
     refValue: 'NRZ250514091819AB',
@@ -68,10 +70,7 @@ const COPY = {
     refCopied: 'कॉपी हो गया',
 
     notifyTitle: 'WhatsApp पर बताएँ',
-    notifySub: 'जब ₹1,00,000 वापस आएँ · +91 98••• ••210',
-
-    calendarBtn: 'अपेक्षित रिफंड तारीख कैलेंडर में जोड़ें',
-    calendarAdded: 'जुड़ गया · 21 मई',
+    notifySub: 'जब ₹1,999 वापस आएँ · +91 98••• ••210',
 
     txDetailsLabel: 'लेन-देन की जानकारी',
     txTime: '14 मई 2026 · दोपहर 1:19',
@@ -79,7 +78,6 @@ const COPY = {
     viewDetails: 'पूरी जानकारी देखें',
 
     ctaPrimary: 'दोबारा भेजने की कोशिश करें',
-    ctaSecondary: 'सपोर्ट से बात करें',
     replay: 'फिर से चलाएँ',
   },
 }
@@ -92,8 +90,8 @@ export default function Failed({ onReplay }) {
   const [lang, setLang] = useState('en')
   const [sheetOpen, setSheetOpen] = useState(false)
   const [notifyOn, setNotifyOn] = useState(true)
-  const [calendarAdded, setCalendarAdded] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [speaking, toggleSpeaking] = useTtsDemo()
   const t = COPY[lang] || COPY.en
 
   const handleCopy = () => {
@@ -109,10 +107,16 @@ export default function Failed({ onReplay }) {
         <TopNav onReplay={onReplay} replayLabel={t.replay} />
         <Hero t={t} />
         <RefundTimeline t={t} />
-        <WhyCard t={t} lang={lang} setLang={setLang} onMoreLang={() => setSheetOpen(true)} />
+        <WhyCard
+          t={t}
+          lang={lang}
+          setLang={setLang}
+          onMoreLang={() => setSheetOpen(true)}
+          speaking={speaking}
+          onSpeak={toggleSpeaking}
+        />
         <RefundReferenceCard t={t} copied={copied} onCopy={handleCopy} />
         <NotifyToggleRow t={t} on={notifyOn} setOn={setNotifyOn} />
-        <CalendarRow t={t} added={calendarAdded} onAdd={() => setCalendarAdded(true)} />
         <TxDetailsRow t={t} />
       </div>
 
@@ -123,6 +127,14 @@ export default function Failed({ onReplay }) {
         onClose={() => setSheetOpen(false)}
         lang={lang}
         setLang={setLang}
+      />
+
+      <ListenOverlay
+        open={speaking}
+        onClose={toggleSpeaking}
+        headline={t.whyHeadline}
+        sub={t.whySub}
+        lang={lang}
       />
     </div>
   )
@@ -177,7 +189,7 @@ function Hero({ t }) {
       <h1 className="text-[20px] font-bold text-slate-800">{t.headline}</h1>
       <p className="text-slate-700 text-[14px] font-semibold mt-0.5">{t.sub}</p>
       <p className="text-slate-400 text-[12px] mt-0.5">truptesh@superyes</p>
-      <h2 className="text-[30px] font-extrabold text-slate-900 mt-2 tracking-tight">₹1,00,000</h2>
+      <h2 className="text-[30px] font-extrabold text-slate-900 mt-2 tracking-tight">₹1,999</h2>
 
       <div className="flex justify-center mt-2.5 mx-2">
         <div className="bg-green-50 text-green-700 px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-green-200 shadow-sm">
@@ -258,7 +270,7 @@ function TimelineDot({ state }) {
 
 /* ───────────────────────── Why card (with EN/HI toggle) ───────────────────────── */
 
-function WhyCard({ t, lang, setLang, onMoreLang }) {
+function WhyCard({ t, lang, setLang, onMoreLang, speaking, onSpeak }) {
   return (
     <section className="mx-4 mt-3 rounded-2xl border border-rose-100 p-4 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF1F2 0%, #FFF7F7 100%)' }}>
       <div className="flex justify-between items-center mb-2">
@@ -272,7 +284,14 @@ function WhyCard({ t, lang, setLang, onMoreLang }) {
           </svg>
           <span className="font-bold text-[10.5px] ml-1.5 uppercase tracking-wider">{t.whyBadge}</span>
         </div>
-        <LanguageSelector lang={lang} setLang={setLang} onMore={onMoreLang} variant="rose" />
+        <LanguageSelector
+          lang={lang}
+          setLang={setLang}
+          onMore={onMoreLang}
+          variant="rose"
+          speaking={speaking}
+          onSpeak={onSpeak}
+        />
       </div>
       <p className="text-[14px] font-bold text-slate-800 leading-snug">{t.whyHeadline}</p>
       <p className="text-[12.5px] text-slate-600 mt-1.5 leading-relaxed">{t.whySub}</p>
@@ -340,31 +359,6 @@ function NotifyToggleRow({ t, on, setOn }) {
   )
 }
 
-/* ───────────────────────── Calendar row ───────────────────────── */
-
-function CalendarRow({ t, added, onAdd }) {
-  return (
-    <button
-      onClick={onAdd}
-      disabled={added}
-      className={`mx-4 mt-3 w-[calc(100%-2rem)] rounded-2xl p-3 flex items-center justify-center gap-2 border transition ${
-        added
-          ? 'bg-green-50 border-green-200 text-green-700'
-          : 'bg-white border-gray-100 text-slate-700 hover:bg-slate-50'
-      }`}
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" />
-        <line x1="16" y1="2" x2="16" y2="6" />
-        <line x1="8" y1="2" x2="8" y2="6" />
-        <line x1="3" y1="10" x2="21" y2="10" />
-        {added && <path d="M9 16l2 2 4-4" />}
-      </svg>
-      <span className="text-[12.5px] font-semibold">{added ? t.calendarAdded : t.calendarBtn}</span>
-    </button>
-  )
-}
-
 /* ───────────────────────── Transaction details ───────────────────────── */
 
 function TxDetailsRow({ t }) {
@@ -386,7 +380,6 @@ function Footer({ t }) {
       <button className="w-full bg-[#B6F082] hover:bg-lime-300 active:bg-lime-400 text-slate-900 font-bold py-3.5 rounded-2xl shadow-sm transition text-[14.5px]">
         {t.ctaPrimary}
       </button>
-      <button className="w-full text-slate-600 font-semibold py-2 mt-1 text-[13.5px]">{t.ctaSecondary}</button>
 
       <div className="flex items-center justify-center gap-2.5 mt-2 opacity-70">
         <span className="text-[9px] text-gray-400 font-medium">Powered by</span>

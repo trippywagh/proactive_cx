@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react'
+
 export const LANGUAGES = [
   { code: 'en', native: 'English', roman: 'English' },
   { code: 'hi', native: 'हिन्दी', roman: 'Hindi' },
@@ -23,7 +25,18 @@ const VARIANT_STYLES = {
   orange: { bg: 'bg-orange-100', active: 'text-orange-700', idle: 'text-orange-500' },
 }
 
-export function LanguageSelector({ lang, setLang, onMore, variant = 'indigo' }) {
+/* Shared "speaking" demo state — 4.5s window, toggleable */
+export function useTtsDemo(durationMs = 4500) {
+  const [speaking, setSpeaking] = useState(false)
+  useEffect(() => {
+    if (!speaking) return
+    const id = setTimeout(() => setSpeaking(false), durationMs)
+    return () => clearTimeout(id)
+  }, [speaking, durationMs])
+  return [speaking, () => setSpeaking((s) => !s)]
+}
+
+export function LanguageSelector({ lang, setLang, onMore, variant = 'indigo', speaking = false, onSpeak }) {
   const v = VARIANT_STYLES[variant] || VARIANT_STYLES.indigo
   const isCustom = !['en', 'hi'].includes(lang)
 
@@ -43,6 +56,13 @@ export function LanguageSelector({ lang, setLang, onMore, variant = 'indigo' }) 
       <button onClick={onMore} aria-label="More languages" className={btnClass(isCustom)}>
         <GlobeIcon />
       </button>
+      <button
+        onClick={onSpeak}
+        aria-label={speaking ? 'Stop listening' : 'Listen to this'}
+        className={btnClass(speaking)}
+      >
+        {speaking ? <EqualizerBars /> : <SpeakerIcon />}
+      </button>
     </div>
   )
 }
@@ -54,6 +74,131 @@ function GlobeIcon() {
       <path d="M2 12h20" />
       <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
     </svg>
+  )
+}
+
+function SpeakerIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor" />
+      <path d="M15.54 8.46a5 5 0 010 7.07" />
+      <path d="M19.07 4.93a10 10 0 010 14.14" />
+    </svg>
+  )
+}
+
+function EqualizerBars() {
+  const delays = ['0s', '0.12s', '0.24s', '0.36s']
+  return (
+    <div className="flex items-end gap-[1.5px]" style={{ height: 12, width: 12 }}>
+      {delays.map((delay, i) => (
+        <span
+          key={i}
+          className="w-[2px] bg-current rounded-full"
+          style={{
+            animation: 'equalizerBar 0.7s ease-in-out infinite',
+            animationDelay: delay,
+            height: '60%',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+/* ─────────────── Premium Listen Overlay ─────────────── */
+
+const OVERLAY_LABELS = {
+  en: { speakingIn: 'Speaking in', stop: 'Stop' },
+  hi: { speakingIn: 'सुना रहे हैं', stop: 'बंद करें' },
+}
+
+export function ListenOverlay({ open, onClose, headline, sub, lang }) {
+  if (!open) return null
+
+  const langInfo = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0]
+  const labels = OVERLAY_LABELS[lang === 'hi' ? 'hi' : 'en']
+
+  return (
+    <div className="absolute inset-0 z-50">
+      <div
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+        onClick={onClose}
+        style={{ animation: 'backdropFade 250ms ease-out' }}
+      />
+      <div className="absolute inset-0 flex items-center justify-center px-5 pointer-events-none">
+        <div
+          className="relative w-full max-w-[320px] bg-white rounded-3xl p-6 shadow-2xl overflow-hidden pointer-events-auto"
+          style={{ animation: 'modalPop 320ms cubic-bezier(0.16, 1, 0.3, 1)' }}
+        >
+          {/* Glowing orb backdrop */}
+          <div
+            className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, #6366F1 0%, transparent 70%)',
+              animation: 'orbPulse 2.4s ease-in-out infinite',
+            }}
+          />
+
+          <WaveformVisualizer />
+
+          <div className="relative flex justify-center mt-1 mb-4">
+            <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border border-indigo-100 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+              {labels.speakingIn} {langInfo.native}
+            </span>
+          </div>
+
+          <p className="relative text-[17px] font-extrabold text-slate-900 leading-snug text-center">
+            {headline}
+          </p>
+          <p className="relative text-[13.5px] text-slate-600 mt-2 leading-relaxed text-center">{sub}</p>
+
+          <div className="relative flex justify-center mt-5">
+            <button
+              onClick={onClose}
+              className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 rounded-full font-bold text-[13px] flex items-center gap-1.5 transition"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12" rx="1.5" />
+              </svg>
+              {labels.stop}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function WaveformVisualizer() {
+  const bars = [
+    { delay: '0s', duration: '0.7s', baseHeight: '38%' },
+    { delay: '0.08s', duration: '0.85s', baseHeight: '60%' },
+    { delay: '0.16s', duration: '0.65s', baseHeight: '45%' },
+    { delay: '0.04s', duration: '0.9s', baseHeight: '72%' },
+    { delay: '0.12s', duration: '0.75s', baseHeight: '88%' },
+    { delay: '0.20s', duration: '0.8s', baseHeight: '70%' },
+    { delay: '0.06s', duration: '0.7s', baseHeight: '50%' },
+    { delay: '0.14s', duration: '0.85s', baseHeight: '60%' },
+    { delay: '0.18s', duration: '0.65s', baseHeight: '38%' },
+  ]
+  return (
+    <div className="relative flex items-end justify-center gap-1.5 h-16 mb-2">
+      {bars.map((c, i) => (
+        <span
+          key={i}
+          className="w-[5px] rounded-full"
+          style={{
+            background: 'linear-gradient(to top, #4F46E5, #A5B4FC)',
+            animation: `equalizerBar ${c.duration} ease-in-out infinite`,
+            animationDelay: c.delay,
+            height: c.baseHeight,
+            minHeight: 8,
+          }}
+        />
+      ))}
+    </div>
   )
 }
 

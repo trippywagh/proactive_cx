@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react'
 import Failed from './Failed'
-import { LanguageSelector, LanguageBottomSheet, SUPPORTED_LANGS, UnsupportedLangHint } from '../components/LanguagePicker'
+import {
+  LanguageSelector,
+  LanguageBottomSheet,
+  SUPPORTED_LANGS,
+  UnsupportedLangHint,
+  useTtsDemo,
+  ListenOverlay,
+} from '../components/LanguagePicker'
 
 /* ───────────────────────── Copy ───────────────────────── */
 
@@ -16,9 +23,9 @@ const COPY = {
       statusBadge: 'STATUS',
       statusHeadline: "Receiver's bank (Kotak) is responding slowly",
       statusSub:
-        'Your transaction is queued and will go through automatically. Most clear within 2–5 minutes.',
+        'Rahul Ji, your transaction is queued and will go through automatically. Most clear within 2–5 minutes.',
       clearsPill: 'Usually clears in 2–5 minutes',
-      cta: 'Notify me & go back',
+      cta: 'Go back',
     },
     success: {
       badge: 'PAYMENT SUCCESSFUL',
@@ -28,8 +35,8 @@ const COPY = {
       moneySafe: 'Delivered to Truptesh',
       trackerStep2: 'Sent',
       statusBadge: 'COMPLETED',
-      statusHeadline: "₹1,00,000 reached Truptesh's Kotak account",
-      statusSub: 'Completed just now. Truptesh has been notified.',
+      statusHeadline: "₹1,999 reached Truptesh's Kotak account",
+      statusSub: 'Rahul Ji, completed just now. Truptesh has been notified.',
       cta: 'Done',
     },
     failed: {
@@ -37,12 +44,12 @@ const COPY = {
       badgeStyle: 'orange',
       headline: 'Your money is back',
       sub: "Receiver's bank declined the transaction",
-      moneySafe: '₹1,00,000 back in your HDFC account',
+      moneySafe: '₹1,999 back in your HDFC account',
       trackerStep2: 'Declined',
       statusBadge: 'REFUND PROCESSED',
       statusHeadline: "The transaction couldn't complete",
       statusSub:
-        "Don't worry — ₹1,00,000 has already been returned to your HDFC account. You can try sending again.",
+        "Rahul Ji, don't worry — ₹1,999 has already been returned to your HDFC account. You can try sending again.",
       ctaPrimary: 'Try again',
       ctaSecondary: 'Done',
     },
@@ -68,9 +75,9 @@ const COPY = {
       trackerStep2: 'भेज रहे हैं',
       statusBadge: 'स्थिति',
       statusHeadline: 'तृप्तेश का बैंक (कोटक) अभी धीरे काम कर रहा है',
-      statusSub: 'आपका payment अपने आप पूरा हो जाएगा। आमतौर पर 2–5 मिनट में।',
+      statusSub: 'राहुल जी, आपका payment अपने आप पूरा हो जाएगा। आमतौर पर 2–5 मिनट में।',
       clearsPill: 'आमतौर पर 2–5 मिनट में पूरा',
-      cta: 'ठीक है, मुझे बताना',
+      cta: 'वापस जाएँ',
     },
     success: {
       badge: 'पेमेंट सफल',
@@ -80,8 +87,8 @@ const COPY = {
       moneySafe: 'तृप्तेश तक पहुँच गए',
       trackerStep2: 'भेज दिया',
       statusBadge: 'पूरा हुआ',
-      statusHeadline: '₹1,00,000 तृप्तेश के कोटक अकाउंट में पहुँच गए',
-      statusSub: 'अभी पूरा हुआ। तृप्तेश को सूचना भेज दी गई है।',
+      statusHeadline: '₹1,999 तृप्तेश के कोटक अकाउंट में पहुँच गए',
+      statusSub: 'राहुल जी, अभी पूरा हुआ। तृप्तेश को सूचना भेज दी गई है।',
       cta: 'हो गया',
     },
     failed: {
@@ -89,12 +96,12 @@ const COPY = {
       badgeStyle: 'orange',
       headline: 'आपके पैसे वापस आ गए',
       sub: 'पाने वाले के बैंक ने मना कर दिया',
-      moneySafe: '₹1,00,000 आपके HDFC अकाउंट में वापस',
+      moneySafe: '₹1,999 आपके HDFC अकाउंट में वापस',
       trackerStep2: 'मना किया',
       statusBadge: 'रिफंड हो गया',
       statusHeadline: 'लेन-देन पूरा नहीं हो सका',
       statusSub:
-        'चिंता न करें — ₹1,00,000 आपके HDFC अकाउंट में वापस आ चुके हैं। आप दोबारा भेज सकते हैं।',
+        'राहुल जी, चिंता न करें — ₹1,999 आपके HDFC अकाउंट में वापस आ चुके हैं। आप दोबारा भेज सकते हैं।',
       ctaPrimary: 'दोबारा कोशिश करें',
       ctaSecondary: 'हो गया',
     },
@@ -122,6 +129,7 @@ export default function Pending({ simulateOutcome = 'none' }) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [notifyOn, setNotifyOn] = useState(true)
   const [secondsLeft, setSecondsLeft] = useState(simulateOutcome === 'none' ? 14 : 5)
+  const [speaking, toggleSpeaking] = useTtsDemo()
 
   useEffect(() => {
     setStatus('pending')
@@ -170,7 +178,15 @@ export default function Pending({ simulateOutcome = 'none' }) {
         <Hero status={status} s={s} />
         <StatusTracker status={status} t={t} />
         {status === 'pending' && <CheckingCountdown seconds={secondsLeft} t={t} />}
-        <StatusCard status={status} s={s} lang={lang} setLang={setLang} onMoreLang={() => setSheetOpen(true)} />
+        <StatusCard
+          status={status}
+          s={s}
+          lang={lang}
+          setLang={setLang}
+          onMoreLang={() => setSheetOpen(true)}
+          speaking={speaking}
+          onSpeak={toggleSpeaking}
+        />
         {status === 'pending' && <SafetyCard t={t} />}
         {status === 'pending' && <NotifyToggleRow t={t} on={notifyOn} setOn={setNotifyOn} />}
         <TxDetailsRow t={t} />
@@ -183,6 +199,14 @@ export default function Pending({ simulateOutcome = 'none' }) {
         onClose={() => setSheetOpen(false)}
         lang={lang}
         setLang={setLang}
+      />
+
+      <ListenOverlay
+        open={speaking}
+        onClose={toggleSpeaking}
+        headline={s.statusHeadline}
+        sub={s.statusSub}
+        lang={lang}
       />
     </div>
   )
@@ -257,7 +281,7 @@ function Hero({ status, s }) {
       <h1 className="text-[20px] font-bold text-slate-800">{s.headline}</h1>
       <p className="text-slate-700 text-[14px] font-semibold mt-0.5">{s.sub}</p>
       <p className="text-slate-400 text-[12px] mt-0.5">truptesh@superyes</p>
-      <h2 className="text-[30px] font-extrabold text-slate-900 mt-2 tracking-tight">₹1,00,000</h2>
+      <h2 className="text-[30px] font-extrabold text-slate-900 mt-2 tracking-tight">₹1,999</h2>
       <div className="flex justify-center mt-2">
         <MoneySafePill status={status} text={s.moneySafe} />
       </div>
@@ -412,9 +436,10 @@ const STATUS_CARD_STYLES = {
   },
 }
 
-function StatusCard({ status, s, lang, setLang, onMoreLang }) {
+function StatusCard({ status, s, lang, setLang, onMoreLang, speaking, onSpeak }) {
   const cs = STATUS_CARD_STYLES[status]
   const variant = status === 'pending' ? 'indigo' : status === 'success' ? 'emerald' : 'indigo'
+
   return (
     <section
       key={status}
@@ -426,7 +451,14 @@ function StatusCard({ status, s, lang, setLang, onMoreLang }) {
           <StatusIcon status={status} />
           <span className="font-bold text-[10.5px] ml-1.5 uppercase tracking-wider">{s.statusBadge}</span>
         </div>
-        <LanguageSelector lang={lang} setLang={setLang} onMore={onMoreLang} variant={variant} />
+        <LanguageSelector
+          lang={lang}
+          setLang={setLang}
+          onMore={onMoreLang}
+          variant={variant}
+          speaking={speaking}
+          onSpeak={onSpeak}
+        />
       </div>
       <p className="text-[14px] font-bold text-slate-800 leading-snug">{s.statusHeadline}</p>
       <p className="text-[12.5px] text-slate-600 mt-1 leading-relaxed">{s.statusSub}</p>
