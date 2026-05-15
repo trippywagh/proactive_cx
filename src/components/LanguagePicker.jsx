@@ -36,7 +36,7 @@ export function useTtsDemo(durationMs = 4500) {
   return [speaking, () => setSpeaking((s) => !s)]
 }
 
-export function LanguageSelector({ lang, setLang, onMore, variant = 'indigo', speaking = false, onSpeak }) {
+export function LanguageSelector({ lang, setLang, onMore, variant = 'indigo', speaking = false, onSpeak, showSpeaker = true }) {
   const v = VARIANT_STYLES[variant] || VARIANT_STYLES.indigo
   const isCustom = !['en', 'hi'].includes(lang)
 
@@ -56,13 +56,15 @@ export function LanguageSelector({ lang, setLang, onMore, variant = 'indigo', sp
       <button onClick={onMore} aria-label="More languages" className={btnClass(isCustom)}>
         <GlobeIcon />
       </button>
-      <button
-        onClick={onSpeak}
-        aria-label={speaking ? 'Stop listening' : 'Listen to this'}
-        className={btnClass(speaking)}
-      >
-        {speaking ? <EqualizerBars /> : <SpeakerIcon />}
-      </button>
+      {showSpeaker && (
+        <button
+          onClick={onSpeak}
+          aria-label={speaking ? 'Stop listening' : 'Listen to this'}
+          className={btnClass(speaking)}
+        >
+          {speaking ? <EqualizerBars /> : <SpeakerIcon />}
+        </button>
+      )}
     </div>
   )
 }
