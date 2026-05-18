@@ -187,7 +187,6 @@ export default function Pending({ simulateOutcome = 'none' }) {
           speaking={speaking}
           onSpeak={toggleSpeaking}
         />
-        {status === 'pending' && <SafetyCard t={t} />}
         {status === 'pending' && <NotifyToggleRow t={t} on={notifyOn} setOn={setNotifyOn} />}
         <TxDetailsRow t={t} />
       </div>
@@ -278,7 +277,6 @@ function Hero({ status, s }) {
           {s.badge}
         </span>
       </div>
-      <h1 className="text-[20px] font-bold text-slate-800">{s.headline}</h1>
       <p className="text-slate-700 text-[14px] font-semibold mt-0.5">{s.sub}</p>
       <p className="text-slate-400 text-[12px] mt-0.5">truptesh@superyes</p>
       <h2 className="text-[30px] font-extrabold text-slate-900 mt-2 tracking-tight">₹1,999</h2>
