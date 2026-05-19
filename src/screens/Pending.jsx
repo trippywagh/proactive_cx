@@ -7,6 +7,7 @@ import {
   UnsupportedLangHint,
   useTtsDemo,
   ListenOverlay,
+  ListenButton,
 } from '../components/LanguagePicker'
 
 /* ───────────────────────── Copy ───────────────────────── */
@@ -21,10 +22,10 @@ const COPY = {
       moneySafe: 'Your money is safe',
       trackerStep2: 'Sending',
       statusBadge: 'STATUS',
-      statusHeadline: "Receiver's bank (Kotak) is responding slowly",
+      statusHeadline: 'Your transaction is in progress',
       statusSub:
-        'Rahul Ji, your transaction is queued and will go through automatically. Most clear within 2–5 minutes.',
-      clearsPill: 'Usually clears in 2–5 minutes',
+        "Your payment is on its way. Don't worry — it's safe. Most clear in under 30 minutes.",
+      clearsPill: 'Usually clears in under 30 min',
       cta: 'Go back',
     },
     success: {
@@ -36,7 +37,7 @@ const COPY = {
       trackerStep2: 'Sent',
       statusBadge: 'COMPLETED',
       statusHeadline: "₹1,999 reached Truptesh's Kotak account",
-      statusSub: 'Rahul Ji, completed just now. Truptesh has been notified.',
+      statusSub: 'Completed just now. Truptesh has been notified.',
       cta: 'Done',
     },
     failed: {
@@ -49,7 +50,7 @@ const COPY = {
       statusBadge: 'REFUND PROCESSED',
       statusHeadline: "The transaction couldn't complete",
       statusSub:
-        "Rahul Ji, don't worry — ₹1,999 has already been returned to your HDFC account. You can try sending again.",
+        "Don't worry — ₹1,999 has already been returned to your HDFC account. You can try sending again.",
       ctaPrimary: 'Try again',
       ctaSecondary: 'Done',
     },
@@ -74,9 +75,10 @@ const COPY = {
       moneySafe: 'आपके पैसे सुरक्षित हैं',
       trackerStep2: 'भेज रहे हैं',
       statusBadge: 'स्थिति',
-      statusHeadline: 'तृप्तेश का बैंक (कोटक) अभी धीरे काम कर रहा है',
-      statusSub: 'राहुल जी, आपका payment अपने आप पूरा हो जाएगा। आमतौर पर 2–5 मिनट में।',
-      clearsPill: 'आमतौर पर 2–5 मिनट में पूरा',
+      statusHeadline: 'आपका लेन-देन हो रहा है',
+      statusSub:
+        'आपका payment हो रहा है। चिंता न करें — आपके पैसे सुरक्षित हैं। आमतौर पर 30 मिनट से कम में पूरा हो जाता है।',
+      clearsPill: 'आमतौर पर 30 मिनट से कम में पूरा',
       cta: 'वापस जाएँ',
     },
     success: {
@@ -88,7 +90,7 @@ const COPY = {
       trackerStep2: 'भेज दिया',
       statusBadge: 'पूरा हुआ',
       statusHeadline: '₹1,999 तृप्तेश के कोटक अकाउंट में पहुँच गए',
-      statusSub: 'राहुल जी, अभी पूरा हुआ। तृप्तेश को सूचना भेज दी गई है।',
+      statusSub: 'अभी पूरा हुआ। तृप्तेश को सूचना भेज दी गई है।',
       cta: 'हो गया',
     },
     failed: {
@@ -101,7 +103,7 @@ const COPY = {
       statusBadge: 'रिफंड हो गया',
       statusHeadline: 'लेन-देन पूरा नहीं हो सका',
       statusSub:
-        'राहुल जी, चिंता न करें — ₹1,999 आपके HDFC अकाउंट में वापस आ चुके हैं। आप दोबारा भेज सकते हैं।',
+        'चिंता न करें — ₹1,999 आपके HDFC अकाउंट में वापस आ चुके हैं। आप दोबारा भेज सकते हैं।',
       ctaPrimary: 'दोबारा कोशिश करें',
       ctaSecondary: 'हो गया',
     },
@@ -177,7 +179,6 @@ export default function Pending({ simulateOutcome = 'none' }) {
         <TopNav showReplay={showReplay} onReplay={handleReplay} replayLabel={t.replay} />
         <Hero status={status} s={s} />
         <StatusTracker status={status} t={t} />
-        {status === 'pending' && <CheckingCountdown seconds={secondsLeft} t={t} />}
         <StatusCard
           status={status}
           s={s}
@@ -280,9 +281,6 @@ function Hero({ status, s }) {
       <p className="text-slate-700 text-[14px] font-semibold mt-0.5">{s.sub}</p>
       <p className="text-slate-400 text-[12px] mt-0.5">truptesh@superyes</p>
       <h2 className="text-[30px] font-extrabold text-slate-900 mt-2 tracking-tight">₹1,999</h2>
-      <div className="flex justify-center mt-2">
-        <MoneySafePill status={status} text={s.moneySafe} />
-      </div>
     </div>
   )
 }
@@ -454,20 +452,20 @@ function StatusCard({ status, s, lang, setLang, onMoreLang, speaking, onSpeak })
           setLang={setLang}
           onMore={onMoreLang}
           variant={variant}
-          speaking={speaking}
-          onSpeak={onSpeak}
+          showSpeaker={false}
         />
       </div>
       <p className="text-[14px] font-bold text-slate-800 leading-snug">{s.statusHeadline}</p>
       <p className="text-[12.5px] text-slate-600 mt-1 leading-relaxed">{s.statusSub}</p>
       <UnsupportedLangHint lang={lang} />
-      {status === 'pending' && (
-        <div className="mt-3">
+      <div className={`mt-3 flex items-center ${status === 'pending' ? 'justify-between' : 'justify-end'}`}>
+        {status === 'pending' && (
           <span className="inline-block bg-yellow-300 text-slate-800 px-2.5 py-1 rounded-full text-[10.5px] font-bold shadow-sm">
             {s.clearsPill}
           </span>
-        </div>
-      )}
+        )}
+        <ListenButton speaking={speaking} onSpeak={onSpeak} variant={variant} lang={lang} />
+      </div>
     </section>
   )
 }

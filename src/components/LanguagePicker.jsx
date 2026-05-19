@@ -89,6 +89,33 @@ function SpeakerIcon() {
   )
 }
 
+const LISTEN_COLORS = {
+  indigo: { idle: 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-100', active: 'bg-indigo-600 text-white border-indigo-600' },
+  rose: { idle: 'bg-rose-50 text-rose-700 hover:bg-rose-100 border-rose-100', active: 'bg-rose-600 text-white border-rose-600' },
+  emerald: { idle: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-100', active: 'bg-emerald-600 text-white border-emerald-600' },
+  orange: { idle: 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-100', active: 'bg-orange-600 text-white border-orange-600' },
+}
+
+const LISTEN_LABELS = { en: 'Listen', hi: 'सुनें' }
+const LISTENING_LABELS = { en: 'Listening…', hi: 'सुन रहे हैं…' }
+
+export function ListenButton({ speaking, onSpeak, variant = 'indigo', lang = 'en' }) {
+  const c = LISTEN_COLORS[variant] || LISTEN_COLORS.indigo
+  const langKey = lang === 'hi' ? 'hi' : 'en'
+  return (
+    <button
+      onClick={onSpeak}
+      aria-label={speaking ? 'Stop listening' : 'Listen to this'}
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border transition ${
+        speaking ? c.active : c.idle
+      }`}
+    >
+      {speaking ? <EqualizerBars /> : <SpeakerIcon />}
+      {speaking ? LISTENING_LABELS[langKey] : LISTEN_LABELS[langKey]}
+    </button>
+  )
+}
+
 function EqualizerBars() {
   const delays = ['0s', '0.12s', '0.24s', '0.36s']
   return (

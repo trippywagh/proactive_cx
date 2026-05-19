@@ -5,6 +5,7 @@ import {
   UnsupportedLangHint,
   useTtsDemo,
   ListenOverlay,
+  ListenButton,
 } from '../components/LanguagePicker'
 
 /* ───────────────────────── Copy ───────────────────────── */
@@ -27,7 +28,7 @@ const COPY = {
     whyBadge: 'WHY THIS HAPPENED',
     whyHeadline: "Receiver's bank (Kotak) declined the transaction",
     whySub:
-      "Rahul Ji, this usually happens when the receiver's bank is temporarily overloaded or under maintenance. It's not your fault, and nothing is wrong with your account.",
+      "This usually happens when the receiver's bank is temporarily overloaded or under maintenance. It's not your fault, and nothing is wrong with your account.",
 
     refLabel: 'REFUND REFERENCE',
     refValue: 'NRZ250514091819AB',
@@ -62,7 +63,7 @@ const COPY = {
     whyBadge: 'ऐसा क्यों हुआ',
     whyHeadline: 'पाने वाले के बैंक (कोटक) ने लेन-देन मना कर दिया',
     whySub:
-      'राहुल जी, ऐसा तब होता है जब पाने वाले का बैंक कुछ देर के लिए धीमा या मेंटेनेंस में होता है। यह आपकी गलती नहीं है, और आपके अकाउंट में कोई दिक्कत नहीं है।',
+      'ऐसा तब होता है जब पाने वाले का बैंक कुछ देर के लिए धीमा या मेंटेनेंस में होता है। यह आपकी गलती नहीं है, और आपके अकाउंट में कोई दिक्कत नहीं है।',
 
     refLabel: 'रिफंड रेफरेंस',
     refValue: 'NRZ250514091819AB',
@@ -186,20 +187,9 @@ function Hero({ t }) {
         </span>
       </div>
 
-      <h1 className="text-[20px] font-bold text-slate-800">{t.headline}</h1>
       <p className="text-slate-700 text-[14px] font-semibold mt-0.5">{t.sub}</p>
       <p className="text-slate-400 text-[12px] mt-0.5">truptesh@superyes</p>
       <h2 className="text-[30px] font-extrabold text-slate-900 mt-2 tracking-tight">₹1,999</h2>
-
-      <div className="flex justify-center mt-2.5 mx-2">
-        <div className="bg-green-50 text-green-700 px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-green-200 shadow-sm">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="currentColor" opacity="0.18" />
-            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span className="text-[11.5px] font-bold leading-tight">{t.refundLine}</span>
-        </div>
-      </div>
     </div>
   )
 }
@@ -289,13 +279,15 @@ function WhyCard({ t, lang, setLang, onMoreLang, speaking, onSpeak }) {
           setLang={setLang}
           onMore={onMoreLang}
           variant="rose"
-          speaking={speaking}
-          onSpeak={onSpeak}
+          showSpeaker={false}
         />
       </div>
       <p className="text-[14px] font-bold text-slate-800 leading-snug">{t.whyHeadline}</p>
       <p className="text-[12.5px] text-slate-600 mt-1.5 leading-relaxed">{t.whySub}</p>
       <UnsupportedLangHint lang={lang} />
+      <div className="mt-3">
+        <ListenButton speaking={speaking} onSpeak={onSpeak} variant="rose" lang={lang} />
+      </div>
     </section>
   )
 }

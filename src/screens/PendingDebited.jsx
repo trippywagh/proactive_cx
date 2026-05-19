@@ -5,6 +5,7 @@ import {
   UnsupportedLangHint,
   useTtsDemo,
   ListenOverlay,
+  ListenButton,
 } from '../components/LanguagePicker'
 import CallMeBottomSheet from '../components/CallMeBottomSheet'
 
@@ -20,10 +21,10 @@ const COPY = {
     trackerSub: ['1:19 PM', '', 'Kotak'],
     checkingIn: 'Checking again in',
     statusBadge: 'STATUS',
-    statusHeadline: "Receiver's bank (Kotak) is responding slowly",
+    statusHeadline: 'Your transaction is in progress',
     statusSub:
-      "Rahul Ji, your ₹1,999 has been debited and is being held safely by NPCI. It will reach Truptesh shortly.",
-    clearsPill: 'Usually clears in 2–5 minutes',
+      "Your payment is on its way. Don't worry — it's safe. Most clear in under 30 minutes.",
+    clearsPill: 'Usually clears in under 30 min',
     fallbackNote:
       'Rahul Ji, your money is always yours. If anything goes wrong, ₹1,999 comes back to you.',
     notifyTitle: 'Notify me on WhatsApp',
@@ -42,10 +43,10 @@ const COPY = {
     trackerSub: ['दोपहर 1:19', '', 'Kotak'],
     checkingIn: 'अगला अपडेट',
     statusBadge: 'स्थिति',
-    statusHeadline: 'तृप्तेश का बैंक (कोटक) अभी धीरे काम कर रहा है',
+    statusHeadline: 'आपका लेन-देन हो रहा है',
     statusSub:
-      'राहुल जी, आपके ₹1,999 कट चुके हैं और NPCI के पास सुरक्षित हैं। ये जल्द ही तृप्तेश तक पहुँच जाएँगे।',
-    clearsPill: 'आमतौर पर 2–5 मिनट में पूरा',
+      'आपका payment हो रहा है। चिंता न करें — आपके पैसे सुरक्षित हैं। आमतौर पर 30 मिनट से कम में पूरा हो जाता है।',
+    clearsPill: 'आमतौर पर 30 मिनट से कम में पूरा',
     fallbackNote:
       'राहुल जी, आपके पैसे हमेशा आपके हैं। कुछ गड़बड़ हुई, तो ₹1,999 आपके पास वापस आ जाएँगे।',
     notifyTitle: 'WhatsApp पर बताएँ',
@@ -84,9 +85,7 @@ export default function PendingDebited() {
         <TopNav />
         <Hero t={t} />
         <StatusTracker t={t} />
-        <CheckingCountdown seconds={secondsLeft} t={t} />
         <StatusCard t={t} lang={lang} setLang={setLang} onMoreLang={() => setSheetOpen(true)} speaking={speaking} onSpeak={toggleSpeaking} />
-        <SafetyNoteCard t={t} />
         <NotifyToggleRow t={t} on={notifyOn} setOn={setNotifyOn} />
         <TxDetailsRow t={t} />
       </div>
@@ -154,20 +153,9 @@ function Hero({ t }) {
           {t.pendingBadge}
         </span>
       </div>
-      <h1 className="text-[20px] font-bold text-slate-800">{t.headline}</h1>
       <p className="text-slate-700 text-[14px] font-semibold mt-0.5">{t.sub}</p>
       <p className="text-slate-400 text-[12px] mt-0.5">truptesh@superyes</p>
       <h2 className="text-[30px] font-extrabold text-slate-900 mt-2 tracking-tight">₹1,999</h2>
-
-      <div className="flex justify-center mt-2.5 mx-2">
-        <div className="bg-green-100 text-green-800 px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-green-200 shadow-sm">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="currentColor" opacity="0.22" />
-            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span className="text-[11.5px] font-bold leading-tight">{t.safetyPill}</span>
-        </div>
-      </div>
     </div>
   )
 }
@@ -267,17 +255,17 @@ function StatusCard({ t, lang, setLang, onMoreLang, speaking, onSpeak }) {
           setLang={setLang}
           onMore={onMoreLang}
           variant="indigo"
-          speaking={speaking}
-          onSpeak={onSpeak}
+          showSpeaker={false}
         />
       </div>
       <p className="text-[14px] font-bold text-slate-800 leading-snug">{t.statusHeadline}</p>
       <p className="text-[12.5px] text-slate-600 mt-1 leading-relaxed">{t.statusSub}</p>
       <UnsupportedLangHint lang={lang} />
-      <div className="mt-3">
+      <div className="mt-3 flex items-center justify-between">
         <span className="inline-block bg-yellow-300 text-slate-800 px-2.5 py-1 rounded-full text-[10.5px] font-bold shadow-sm">
           {t.clearsPill}
         </span>
+        <ListenButton speaking={speaking} onSpeak={onSpeak} variant="indigo" lang={lang} />
       </div>
     </section>
   )
